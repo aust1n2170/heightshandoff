@@ -32,6 +32,8 @@
 <script setup>
 import { ref } from 'vue'
 import ItemFeed from './components/ItemFeed.vue'
+import ItemForm from './components/ItemForm.vue'
+import Navbar from './components/Navbar.vue'
 
 const currentView = ref('feed')
 const itemFeedRef = ref(null)
