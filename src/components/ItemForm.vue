@@ -75,13 +75,11 @@
               required
             >
               <option value="">Select category</option>
-              <option value="furniture">Furniture</option>
-              <option value="electronics">Electronics</option>
               <option value="clothing">Clothing</option>
-              <option value="books">Books</option>
-              <option value="kitchen">Kitchen</option>
-              <option value="decor">Decor</option>
-              <option value="other">Other</option>
+              <option value="electronics">Electronics</option>
+              <option value="textbooks">Textbooks</option>
+              <option value="parking">Parking</option>
+              <option value="misc">Miscellaneous</option>
             </select>
           </div>
 
@@ -287,3 +285,13 @@ const handleSubmit = () => {
   }, 1000)
 }
 </script>
+
+<style scoped>
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+</style>

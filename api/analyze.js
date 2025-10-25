@@ -1,19 +1,6 @@
-import OpenAI from 'openai'
-import formidable from 'formidable'
-import fs from 'fs'
-
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-}
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-})
+import { OpenAI } from 'openai'
 
 export default async function handler(req, res) {
-  // Enable CORS
   res.setHeader('Access-Control-Allow-Origin', '*')
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS')
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
@@ -27,15 +14,21 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Parse form data
-    const form = formidable()
-    const [fields, files] = await form.parse(req)
-    
-    const imageFile = files.image[0]
-    const imageBuffer = fs.readFileSync(imageFile.filepath)
-    const base64Image = imageBuffer.toString('base64')
+    console.log('🔍 Analyzing image...')
 
-    // Call OpenAI Vision API
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
+    })
+
+    const { image } = req.body
+
+    if (!image) {
+      console.error('No image in request')
+      return res.status(400).json({ error: 'No image provided' })
+    }
+
+    console.log('Calling OpenAI Vision API...')
+
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -55,7 +48,7 @@ export default async function handler(req, res) {
             {
               type: "image_url",
               image_url: {
-                url: `data:image/jpeg;base64,${base64Image}`
+                url: `data:image/jpeg;base64,${image}`
               }
             }
           ]
@@ -65,19 +58,28 @@ export default async function handler(req, res) {
     })
 
     const result = response.choices[0].message.content
-    
-    // Parse JSON from response
+    console.log('Response:', result)
+
     let parsed
     try {
-      // Handle markdown code blocks
-      const jsonMatch = result.match(/\{[\s\S]*\}/)
-      parsed = JSON.parse(jsonMatch[0])
-    } catch {
+      let cleanResult = result
+      if (result.includes('```json')) {
+        cleanResult = result.split('```json')[1].split('```')[0]
+      } else if (result.includes('```')) {
+        cleanResult = result.split('```')[1].split('```')[0]
+      }
+      
+      const jsonMatch = cleanResult.match(/\{[\s\S]*\}/)
+      if (jsonMatch) {
+        parsed = JSON.parse(jsonMatch[0])
+        console.log('✅ Parsed result:', parsed)
+      } else {
+        throw new Error('No JSON found in response')
+      }
+    } catch (parseError) {
+      console.error('Parse error:', parseError)
       parsed = { error: "Could not parse AI response" }
     }
-
-    // Clean up temp file
-    fs.unlinkSync(imageFile.filepath)
 
     return res.status(200).json(parsed)
 
