@@ -124,7 +124,7 @@
           :disabled="posting || analyzing" 
           class="w-full mt-6 bg-green-600 text-white py-4 rounded-lg font-semibold text-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all shadow-lg"
         >
-          <span v-if="posting">Posting... ⏳</span>
+          <span v-if="posting">Posting to Firebase... ⏳</span>
           <span v-else-if="analyzing">Analyzing... 🤖</span>
           <span v-else>List Item 🚀</span>
         </button>
@@ -135,15 +135,17 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
+import { useItems } from '../backend/useItems'
 
 const emit = defineEmits(['itemPosted'])
+
+const { addItem, loading: posting } = useItems()
 
 const imageFile = ref(null)
 const previewUrl = ref(null)
 const analyzing = ref(false)
 const analyzed = ref(false)
 const analyzeError = ref(null)
-const posting = ref(false)
 
 const form = reactive({
   name: '',
@@ -179,31 +181,18 @@ const handleImageUpload = async (event) => {
   analyzing.value = true
 
   console.log('🔍 Starting AI analysis...')
-  console.log('📁 File type:', file.type)
 
   try {
     const { base64, mimeType } = await fileToBase64(file)
-    console.log('📦 Image converted')
-    console.log('🎨 MIME type:', mimeType)
-    console.log('📏 Base64 length:', base64.length)
-
     console.log('📤 Calling /api/analyze...')
+    
     const response = await fetch('/api/analyze', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ 
-        image: base64,
-        mimeType: mimeType 
-      })
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image: base64, mimeType })
     })
 
-    console.log('📥 Response status:', response.status)
-
     if (!response.ok) {
-      const errorText = await response.text()
-      console.error('❌ API error:', errorText)
       throw new Error(`API error: ${response.status}`)
     }
 
@@ -231,26 +220,32 @@ const handleImageUpload = async (event) => {
   }
 }
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
   if (!imageFile.value) {
     alert('Please upload an image')
     return
   }
 
-  posting.value = true
-
-  setTimeout(() => {
-    alert('Item posted successfully! 🎉\n\n(Firebase integration will save this for real)')
+  try {
+    console.log('🔥 Saving to Firebase...')
     
+    await addItem(form, imageFile.value)
+    
+    alert('✅ Item posted successfully!\n\nYour item is now live on the marketplace! 🎉')
+    
+    // Reset form
     Object.keys(form).forEach(key => form[key] = '')
     imageFile.value = null
     previewUrl.value = null
     analyzed.value = false
     analyzeError.value = null
-    posting.value = false
     
     emit('itemPosted')
-  }, 1000)
+    
+  } catch (error) {
+    console.error('❌ Firebase error:', error)
+    alert('❌ Error posting item. Please try again.\n\n' + error.message)
+  }
 }
 </script>
 

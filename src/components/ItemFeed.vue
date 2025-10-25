@@ -7,7 +7,7 @@
         <button
           v-for="cat in categories"
           :key="cat.value"
-          @click="selectedCategory = cat.value"
+          @click="handleCategoryChange(cat.value)"
           :class="['px-4 py-2 rounded-full font-medium transition', selectedCategory === cat.value ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300']"
         >
           {{ cat.label }}
@@ -17,7 +17,7 @@
 
     <div v-if="loading" class="text-center py-12">
       <div class="inline-block animate-spin text-4xl mb-4">⚡</div>
-      <p class="text-gray-500 text-lg">Loading items...</p>
+      <p class="text-gray-500 text-lg">Loading items from Firebase...</p>
     </div>
 
     <div v-else-if="items.length === 0" class="text-center py-12">
@@ -30,12 +30,21 @@
       <div v-for="item in items" :key="item.id" class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
         <img :src="item.imageUrl" :alt="item.name" class="w-full h-48 object-cover" />
         <div class="p-4">
-          <h3 class="text-xl font-semibold mb-2">{{ item.name }}</h3>
-          <p class="text-gray-600 text-sm mb-3">{{ item.description }}</p>
-          <div class="flex justify-between items-center">
+          <h3 class="text-xl font-semibold mb-2 truncate">{{ item.name }}</h3>
+          <div class="flex items-center justify-between mb-3">
+            <span :class="getConditionColor(item.condition)" class="px-3 py-1 rounded-full text-xs font-medium">
+              {{ item.condition }}
+            </span>
             <span class="text-2xl font-bold text-green-600">{{ item.price }}</span>
-            <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Contact</button>
           </div>
+          <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ item.description }}</p>
+          <div class="flex items-center justify-between text-xs text-gray-500">
+            <span>📍 {{ item.location || 'BC Campus' }}</span>
+            <span>{{ getTimeAgo(item.createdAt) }}</span>
+          </div>
+          <button @click="handleContact(item)" class="w-full mt-4 bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition font-medium">
+            Contact Seller
+          </button>
         </div>
       </div>
     </div>
@@ -44,6 +53,9 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useItems } from '../backend/useItems'
+
+const { items, loading, fetchItems } = useItems()
 
 const categories = [
   { value: 'all', label: 'All' },
@@ -56,10 +68,52 @@ const categories = [
 ]
 
 const selectedCategory = ref('all')
-const items = ref([])
-const loading = ref(false)
+
+const handleCategoryChange = (category) => {
+  selectedCategory.value = category
+  fetchItems({ category })
+}
+
+const handleContact = (item) => {
+  alert(`Contact seller for: ${item.name}\n\n📧 Email: seller@bc.edu\n📱 (In a full app, this would open messaging!)`)
+}
+
+const getConditionColor = (condition) => {
+  const colors = {
+    'like new': 'bg-green-100 text-green-800',
+    'good': 'bg-blue-100 text-blue-800',
+    'fair': 'bg-yellow-100 text-yellow-800',
+    'poor': 'bg-red-100 text-red-800'
+  }
+  return colors[condition?.toLowerCase()] || 'bg-gray-100 text-gray-800'
+}
+
+const getTimeAgo = (timestamp) => {
+  if (!timestamp) return 'Just now'
+  
+  const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp)
+  const seconds = Math.floor((new Date() - date) / 1000)
+  
+  if (seconds < 60) return 'Just now'
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`
+  return `${Math.floor(seconds / 86400)}d ago`
+}
 
 onMounted(() => {
-  items.value = []
+  fetchItems()
+})
+
+defineExpose({
+  refresh: () => fetchItems({ category: selectedCategory.value })
 })
 </script>
+
+<style scoped>
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+</style>
