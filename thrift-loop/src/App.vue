@@ -1,30 +1,49 @@
-<script setup>
-import HelloWorld from './components/HelloWorld.vue'
-</script>
-
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
+  <div class="min-h-screen bg-gray-50">
+    <Navbar 
+      :currentView="currentView"
+      @navigate="currentView = $event"
+    />
+
+    <main class="py-8">
+      <ItemFeed 
+        v-if="currentView === 'feed'" 
+        ref="itemFeedRef"
+      />
+      <ItemForm 
+        v-else-if="currentView === 'post'"
+        @itemPosted="handleItemPosted"
+      />
+      <ImpactDashboard v-else-if="currentView === 'impact'" />
+    </main>
+
+    <footer class="bg-gray-800 text-white py-8 mt-16">
+      <div class="max-w-7xl mx-auto px-4 text-center">
+        <div class="text-2xl mb-2">Thrift Loop</div>
+        <p class="text-gray-400 mb-4">Building BC's Circular Economy</p>
+        <p class="text-gray-500 text-xs mt-6">
+          Built by Austin Ngo, Eddie Yang, Eshaan Chatrath, Kai Shim
+        </p>
+      </div>
+    </footer>
   </div>
-  <HelloWorld msg="Vite + Vue" />
 </template>
 
-<style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+<script setup>
+import { ref } from 'vue'
+import ItemFeed from './components/ItemFeed.vue'
+
+const currentView = ref('feed')
+const itemFeedRef = ref(null)
+
+const handleItemPosted = () => {
+  currentView.value = 'feed'
+  
+
+  setTimeout(() => {
+    if (itemFeedRef.value?.refresh) {
+      itemFeedRef.value.refresh()
+    }
+  }, 100)
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
-}
-</style>
+</script>
