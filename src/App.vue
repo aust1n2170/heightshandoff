@@ -22,7 +22,7 @@
         <div class="text-2xl mb-2">Thrift Loop</div>
         <p class="text-gray-400 mb-4">Building BC's Circular Economy</p>
         <p class="text-gray-500 text-xs mt-6">
-          Built by Austin Ngo, Eddie Yang, Eshaan Chatrath, Kai Shim
+          Built by Austin Ngo, Eddie Yang, Eshaan Chatrath, Kai Shim, dfkghjsdfjkg
         </p>
       </div>
     </footer>
