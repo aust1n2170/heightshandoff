@@ -36,7 +36,7 @@
         </div>
 
         <button type="submit" :disabled="loading" class="w-full mt-6 bg-green-600 text-white py-4 rounded-lg font-semibold text-lg hover:bg-green-700 disabled:bg-gray-400">
-          {{ loading ? 'Posting...' : 'List Item' }}
+          {{ loading ? 'Posting...' : 'List Item 🚀' }}
         </button>
       </form>
     </div>
