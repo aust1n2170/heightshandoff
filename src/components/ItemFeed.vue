@@ -47,11 +47,12 @@ import { ref, onMounted } from 'vue'
 
 const categories = [
   { value: 'all', label: 'All' },
-  { value: 'clothing', label: 'Clothing' },
+  { value: 'furniture', label: 'Furniture' },
   { value: 'electronics', label: 'Electronics' },
+  { value: 'clothing', label: 'Clothing' },
   { value: 'textbooks', label: 'Textbooks' },
-  { value: 'parking', label: 'Parking Spots' },
-  { value: 'misc', label: 'Miscellaneous' }
+  { value: 'decor', label: 'Decor' },
+  { value: 'other', label: 'Other' }
 ]
 
 const selectedCategory = ref('all')
