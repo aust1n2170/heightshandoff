@@ -5,38 +5,129 @@
       
       <form @submit.prevent="handleSubmit">
         <div class="mb-6">
-          <label class="block text-sm font-medium text-gray-700 mb-2">Photo *</label>
-          <input type="file" accept="image/*" @change="handleImageUpload" class="w-full p-3 border-2 border-gray-300 rounded-lg" required />
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            📸 Upload Photo *
+          </label>
+          <input 
+            type="file" 
+            accept="image/*" 
+            @change="handleImageUpload" 
+            class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-green-600 focus:outline-none" 
+            required 
+          />
+          
           <div v-if="previewUrl" class="mt-4">
             <img :src="previewUrl" alt="Preview" class="h-64 w-full object-cover rounded-lg shadow-md" />
           </div>
         </div>
 
-        <div v-if="loading" class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <div v-if="analyzing" class="mb-6 p-4 bg-blue-50 rounded-lg border-2 border-blue-200 animate-pulse">
           <div class="flex items-center space-x-3">
-            <div class="animate-spin text-2xl">🤖</div>
-            <p class="text-blue-700 font-medium">AI analyzing your item...</p>
+            <div class="text-3xl animate-spin">🤖</div>
+            <div>
+              <p class="text-blue-700 font-bold text-lg">AI is analyzing your photo...</p>
+              <p class="text-blue-600 text-sm">Detecting item details automatically</p>
+            </div>
           </div>
         </div>
 
-        <div class="space-y-4">
-          <input v-model="formData.name" type="text" placeholder="Item name" class="w-full p-3 border-2 border-gray-300 rounded-lg" required />          
-          <select v-model="formData.category" class="w-full p-3 border-2 border-gray-300 rounded-lg" required>
-            <option value="">Select category</option>
-            <option value="clothing">Clothing</option>
-            <option value="electronics">Electronics</option>
-            <option value="textbooks">Textbooks</option>
-            <option value="parking">Parking Spots</option>
-            <option value="misc">Miscellaneous</option>
-          </select>
-
-          <textarea v-model="formData.description" placeholder="Description" rows="3" class="w-full p-3 border-2 border-gray-300 rounded-lg" />
-          
-          <input v-model="formData.price" type="text" placeholder="Price (e.g., $15 or FREE)" class="w-full p-3 border-2 border-gray-300 rounded-lg" required />
+        <div v-if="analyzed && !analyzing" class="mb-6 p-4 bg-green-50 rounded-lg border-2 border-green-200">
+          <p class="text-green-700 font-bold">✨ AI Analysis Complete!</p>
+          <p class="text-green-600 text-sm">Form filled automatically. You can edit any field before posting.</p>
         </div>
 
-        <button type="submit" :disabled="loading" class="w-full mt-6 bg-green-600 text-white py-4 rounded-lg font-semibold text-lg hover:bg-green-700 disabled:bg-gray-400">
-          {{ loading ? 'Posting...' : 'List Item 🚀' }}
+        <div v-if="analyzeError" class="mb-6 p-4 bg-red-50 rounded-lg border-2 border-red-200">
+          <p class="text-red-700 font-bold">⚠️ AI Analysis Failed</p>
+          <p class="text-red-600 text-sm">{{ analyzeError }}</p>
+          <p class="text-red-600 text-sm">Please fill out the form manually.</p>
+        </div>
+
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Item Name *</label>
+            <input 
+              v-model="form.name" 
+              type="text" 
+              placeholder="e.g., Modern Desk Lamp" 
+              class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-green-600 focus:outline-none" 
+              required 
+            />
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Category *</label>
+            <select 
+              v-model="form.category" 
+              class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-green-600 focus:outline-none" 
+              required
+            >
+              <option value="">Select category</option>
+              <option value="furniture">Furniture</option>
+              <option value="electronics">Electronics</option>
+              <option value="clothing">Clothing</option>
+              <option value="books">Books</option>
+              <option value="kitchen">Kitchen</option>
+              <option value="decor">Decor</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Condition *</label>
+            <select 
+              v-model="form.condition" 
+              class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-green-600 focus:outline-none" 
+              required
+            >
+              <option value="">Select condition</option>
+              <option value="like new">Like New</option>
+              <option value="good">Good</option>
+              <option value="fair">Fair</option>
+              <option value="poor">Poor</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+            <textarea 
+              v-model="form.description" 
+              placeholder="Brief description of the item..." 
+              rows="3" 
+              class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-green-600 focus:outline-none"
+            />
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Price *</label>
+            <input 
+              v-model="form.price" 
+              type="text" 
+              placeholder="e.g., $15 or FREE" 
+              class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-green-600 focus:outline-none" 
+              required 
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Location *</label>
+            <input 
+              v-model="form.location" 
+              type="text" 
+              placeholder="e.g., Walsh Hall, 2nd Floor" 
+              class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-green-600 focus:outline-none" 
+              required 
+            />
+          </div>
+        </div>
+
+        <button 
+          type="submit" 
+          :disabled="posting || analyzing" 
+          class="w-full mt-6 bg-green-600 text-white py-4 rounded-lg font-semibold text-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all shadow-lg"
+        >
+          <span v-if="posting">Posting... ⏳</span>
+          <span v-else-if="analyzing">Analyzing... 🤖</span>
+          <span v-else>List Item 🚀</span>
         </button>
       </form>
     </div>
@@ -50,24 +141,120 @@ const emit = defineEmits(['itemPosted'])
 
 const imageFile = ref(null)
 const previewUrl = ref(null)
-const loading = ref(false)
+const analyzing = ref(false)
+const analyzed = ref(false)
+const analyzeError = ref(null)
+const posting = ref(false)
 
-const formData = reactive({
+const form = reactive({
   name: '',
   category: '',
+  condition: '',
   description: '',
-  price: ''
+  price: '',
+  location: ''
 })
 
-const handleImageUpload = (event) => {
-  const file = event.target.files[0]
-  if (!file) return
-  imageFile.value = file
-  previewUrl.value = URL.createObjectURL(file)
+const fileToBase64 = (file) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.readAsDataURL(file)
+    reader.onload = () => {
+      const base64 = reader.result.split(',')[1]
+      resolve(base64)
+    }
+    reader.onerror = reject
+  })
 }
 
-const handleSubmit = async () => {
-  alert('Item posted!')
-  emit('itemPosted')
+const handleImageUpload = async (event) => {
+  const file = event.target.files[0]
+  if (!file) return
+
+  imageFile.value = file
+  previewUrl.value = URL.createObjectURL(file)
+  
+  analyzed.value = false
+  analyzeError.value = null
+
+  analyzing.value = true
+  console.log('🔍 Starting AI analysis for:', file.name)
+
+  try {
+    const base64Image = await fileToBase64(file)
+    console.log('📦 Image converted to base64')
+
+    console.log('📤 Calling /api/analyze...')
+    const response = await fetch('/api/analyze', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ image: base64Image })
+    })
+
+    console.log('📥 Response status:', response.status)
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      console.error('Response error:', errorText)
+      throw new Error(`Server error: ${response.status}`)
+    }
+
+    const result = await response.json()
+    console.log('✅ AI result:', result)
+
+    if (result.error) {
+      throw new Error(result.error)
+    }
+
+    form.name = result.name || ''
+    form.category = result.category?.toLowerCase() || ''
+    form.condition = result.condition?.toLowerCase() || ''
+    form.description = result.description || ''
+    form.price = result.price || ''
+
+    analyzed.value = true
+    console.log('✨ Form auto-filled!')
+
+  } catch (error) {
+    console.error('❌ AI analysis failed:', error)
+    analyzeError.value = error.message || 'Analysis failed. Please fill manually.'
+  } finally {
+    analyzing.value = false
+  }
+}
+
+const handleSubmit = () => {
+  if (!imageFile.value) {
+    alert('Please upload an image')
+    return
+  }
+
+  posting.value = true
+
+  setTimeout(() => {
+    console.log('Item posted:', form)
+    alert('Item posted successfully! 🎉')
+    
+    Object.keys(form).forEach(key => form[key] = '')
+    imageFile.value = null
+    previewUrl.value = null
+    analyzed.value = false
+    analyzeError.value = null
+    posting.value = false
+    
+    emit('itemPosted')
+  }, 1000)
 }
 </script>
+
+<style scoped>
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+</style>
