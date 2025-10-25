@@ -1,6 +1,10 @@
-// vite.config.ts/js
 import { defineConfig } from 'vite'
-import vercel from 'vite-plugin-vercel'
+import vue from '@vitejs/plugin-vue'
+
 export default defineConfig({
-  plugins: [vercel()]
+  plugins: [vue()],
+  build: {
+    outDir: 'dist',
+    sourcemap: false
+  }
 })
