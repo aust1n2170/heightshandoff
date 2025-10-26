@@ -42,7 +42,6 @@
           />
         </div>
 
-        <!-- Phone number field (only shown during sign up) -->
         <div v-if="!isLoginMode">
           <label class="block text-sm font-medium text-gray-700 mb-2">
             Phone Number <span class="text-gray-500 text-xs">(optional)</span>
@@ -99,7 +98,6 @@ const handleSubmit = async () => {
 
   if (result.success) {
     emit('close')
-    // Reset form
     email.value = ''
     password.value = ''
     phoneNumber.value = ''

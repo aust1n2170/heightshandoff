@@ -49,7 +49,6 @@
       </div>
     </div>
 
-    <!-- Message Card Modal -->
     <div v-if="showMessageCard" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
         <div class="p-6 border-b border-gray-200 flex items-center justify-between">
@@ -116,12 +115,10 @@ const { items, loading, fetchItems } = useItems()
 const filteredItems = computed(() => {
   let result = items.value
   
-  // First apply category filter
   if (selectedCategory.value !== 'all') {
     result = result.filter(item => item.category === selectedCategory.value)
   }
   
-  // Then apply search filter
   if (props.searchQuery) {
     const query = props.searchQuery.toLowerCase().trim()
     result = result.filter(item => 
@@ -150,18 +147,14 @@ const selectedItem = ref(null)
 
 const handleCategoryChange = (category) => {
   selectedCategory.value = category
-  // No need to fetch items - client-side filtering handles it
 }
 
 const handleContact = (item) => {
-  // Check if user is logged in
   if (!props.user) {
-    // Show login modal if not logged in
     emit('showLogin')
     return
   }
   
-  // Show message card if logged in
   selectedItem.value = item
   showMessageCard.value = true
 }
@@ -186,22 +179,18 @@ const formatPrice = (price) => {
   
   const priceStr = String(price).trim().toUpperCase()
   
-  // If it's FREE, return as is
   if (priceStr === 'FREE' || priceStr === '0' || priceStr === '$0') {
     return 'FREE'
   }
   
-  // If it already starts with $, return as is
   if (priceStr.startsWith('$')) {
     return priceStr
   }
   
-  // If it's a number, add $
   if (!isNaN(priceStr)) {
     return '$' + priceStr
   }
   
-  // Otherwise, add $ prefix
   return '$' + priceStr
 }
 
@@ -218,11 +207,11 @@ const getTimeAgo = (timestamp) => {
 }
 
 onMounted(() => {
-  fetchItems() // Fetch all items without category filter
+  fetchItems()
 })
 
 defineExpose({
-  refresh: () => fetchItems() // Refresh all items, filtering is done client-side
+  refresh: () => fetchItems()
 })
 </script>
 

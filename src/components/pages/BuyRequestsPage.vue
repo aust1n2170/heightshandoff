@@ -20,7 +20,6 @@
       </div>
     </div>
 
-    <!-- Browse Requests -->
     <div v-if="viewMode === 'browse'" class="space-y-6">
       <div v-for="request in buyRequests" :key="request.id" class="bg-white rounded-lg shadow-lg p-6">
         <div class="flex items-start justify-between mb-4">
@@ -61,7 +60,6 @@
       </div>
     </div>
 
-    <!-- Post Request Form -->
     <div v-else class="max-w-2xl mx-auto">
       <div class="bg-white rounded-lg shadow-lg p-6">
         <h2 class="text-2xl font-bold mb-6 text-gray-800">Post a Buy Request</h2>
@@ -146,7 +144,6 @@
       </div>
     </div>
 
-    <!-- Contact Modal -->
     <div v-if="showContactModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
         <div class="p-6 border-b border-gray-200 flex items-center justify-between">
@@ -217,7 +214,6 @@ const requestForm = ref({
   location: ''
 })
 
-// Sample buy requests data
 const buyRequests = ref([
   {
     id: 1,
@@ -252,14 +248,11 @@ const buyRequests = ref([
 ])
 
 const handleReplyRequest = (request) => {
-  // Check if user is logged in
   if (!props.user) {
-    // Show login modal if not logged in
     emit('showLogin')
     return
   }
   
-  // Show contact modal if logged in
   selectedRequest.value = request
   showContactModal.value = true
 }

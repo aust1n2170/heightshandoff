@@ -184,7 +184,7 @@ const handleImageUpload = async (event) => {
 
   try {
     const { base64, mimeType } = await fileToBase64(file)
-    console.log('📤 Calling /api/analyze...')
+    console.log('Calling /api/analyze...')
     
     const response = await fetch('/api/analyze', {
       method: 'POST',
@@ -197,7 +197,7 @@ const handleImageUpload = async (event) => {
     }
 
     const result = await response.json()
-    console.log('✅ AI result:', result)
+    console.log('AI result:', result)
 
     if (result.error) {
       throw new Error(result.error)
@@ -213,7 +213,7 @@ const handleImageUpload = async (event) => {
     console.log('✨ Form auto-filled!')
 
   } catch (error) {
-    console.error('❌ Error:', error)
+    console.error('Error:', error)
     analyzeError.value = error.message || 'Analysis failed. Please try again.'
   } finally {
     analyzing.value = false
@@ -227,13 +227,12 @@ const handleSubmit = async () => {
   }
 
   try {
-    console.log('🔥 Saving to Firebase...')
+    console.log('Saving...')
     
     await addItem(form, imageFile.value)
     
-    alert('✅ Item posted successfully!\n\nYour item is now live on the marketplace! 🎉')
+    alert('Item posted successfully!\n\nYour item is now live on the marketplace! 🎉')
     
-    // Reset form
     Object.keys(form).forEach(key => form[key] = '')
     imageFile.value = null
     previewUrl.value = null
@@ -243,8 +242,8 @@ const handleSubmit = async () => {
     emit('itemPosted')
     
   } catch (error) {
-    console.error('❌ Firebase error:', error)
-    alert('❌ Error posting item. Please try again.\n\n' + error.message)
+    console.error('Firebase error:', error)
+    alert('Error posting item. Please try again.\n\n' + error.message)
   }
 }
 </script>
