@@ -35,7 +35,7 @@
             <span class="text-2xl mr-3">📍</span>
             <div>
               <p class="font-medium text-gray-800">Location</p>
-              <p class="text-sm text-gray-600">Stayer Hall</p>
+              <p class="text-sm text-gray-600">Duchesne East</p>
             </div>
           </div>
         </div>
