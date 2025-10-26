@@ -51,7 +51,7 @@
         <p class="text-secondary mb-4">One Eagle's Old, Another Eagle's Gold</p>
         <p class="text-gray-500 text-xs mt-6">
           by 
-          <a href="https://github.com/aust1n2170/hth2025/" target="_blank" rel="noopener noreferrer" class="text-secondary hover:text-gray-300 transition cursor-pointer">Austin Ngo</a>, 
+          <a href="https://github.com/aust1n2170/heightshandoff/" target="_blank" rel="noopener noreferrer" class="text-secondary hover:text-gray-300 transition cursor-pointer">Austin Ngo</a>, 
           <a href="https://www.linkedin.com/in/edward-x-yang/" class="text-secondary hover:text-gray-300 transition cursor-pointer">Eddie Yang</a>, 
           <a href="https://www.linkedin.com/in/eshaan-chatrath-400501245/" class="text-secondary hover:text-gray-300 transition cursor-pointer">Eshaan Chatrath</a>, 
           <a href="https://www.linkedin.com/in/kaihyungwonshim/" class="text-secondary hover:text-gray-300 transition cursor-pointer">Kai Shim</a>
