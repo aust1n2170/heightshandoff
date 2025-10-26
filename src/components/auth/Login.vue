@@ -92,7 +92,6 @@ const authError = ref('')
 const handleSubmit = async () => {
   authError.value = ''
   
-  // Check if email ends with @bc.edu (only for sign up)
   if (!isLoginMode.value && !email.value.endsWith('@bc.edu')) {
     authError.value = 'Registration is only available for @bc.edu email addresses.'
     return

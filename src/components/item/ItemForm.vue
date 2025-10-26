@@ -175,6 +175,27 @@
         </button>
       </form>
     </div>
+
+    <div v-if="showSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" @click="showSuccessModal = false">
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full" @click.stop>
+        <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+          <h3 class="text-xl font-bold text-gray-800">Success!</h3>
+          <button @click="showSuccessModal = false" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+        </div>
+        
+        <div class="p-6">
+          <div class="text-center mb-6">
+            <div class="text-6xl mb-4 animate-bounce">🎉</div>
+            <h4 class="text-2xl font-bold text-gray-800 mb-2">Item Posted!</h4>
+            <p class="text-gray-600">Your item is now live on the marketplace</p>
+          </div>
+
+          <button @click="showSuccessModal = false" class="w-full bg-secondary text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium">
+            Great!
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -202,6 +223,7 @@ const analyzed = ref(false)
 const analyzeError = ref(null)
 const isDragging = ref(false)
 const fileInput = ref(null)
+const showSuccessModal = ref(false)
 
 const form = reactive({
   name: '',
@@ -324,7 +346,7 @@ const handleSubmit = async () => {
     
     await addItem(form, imageFile.value)
     
-    alert('Item posted successfully!\n\nYour item is now live on the marketplace! 🎉')
+    showSuccessModal.value = true
     
     Object.keys(form).forEach(key => form[key] = '')
     imageFile.value = null
@@ -339,7 +361,7 @@ const handleSubmit = async () => {
     
   } catch (error) {
     console.error('Firebase error:', error)
-    alert('Error posting item. Please try again.\n\n' + error.message)
+    alert('Error posting item. Please try again.\n\n' + (error.message || 'Unknown error'))
   }
 }
 
