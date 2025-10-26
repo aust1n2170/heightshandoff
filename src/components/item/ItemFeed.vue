@@ -35,7 +35,7 @@
             <span :class="getConditionColor(item.condition)" class="px-3 py-1 rounded-full text-xs font-medium">
               {{ item.condition }}
             </span>
-            <span class="text-2xl font-bold text-green-600">{{ item.price }}</span>
+            <span class="text-2xl font-bold text-green-600">{{ formatPrice(item.price) }}</span>
           </div>
           <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ item.description }}</p>
           <div class="flex items-center justify-between text-xs text-gray-500">
@@ -48,16 +48,68 @@
         </div>
       </div>
     </div>
+
+    <!-- Message Card Modal -->
+    <div v-if="showMessageCard" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+        <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+          <h3 class="text-xl font-bold text-gray-800">Contact Seller</h3>
+          <button @click="closeMessageCard" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+        </div>
+        
+        <div class="p-6">
+          <div class="mb-4">
+            <img v-if="selectedItem?.imageUrl" :src="selectedItem.imageUrl" :alt="selectedItem.name" class="w-full h-32 object-cover rounded-lg mb-3" />
+            <h4 class="text-lg font-semibold text-gray-800 mb-2">{{ selectedItem?.name }}</h4>
+            <p class="text-2xl font-bold text-green-600 mb-3">{{ formatPrice(selectedItem?.price) }}</p>
+            <p class="text-gray-600 text-sm mb-4">{{ selectedItem?.description }}</p>
+          </div>
+
+          <div class="space-y-3 mb-6">
+            <div class="flex items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <span class="text-2xl mr-3">📧</span>
+              <div>
+                <p class="font-medium text-gray-800">Email</p>
+                <p class="text-sm text-gray-600">seller@bc.edu</p>
+              </div>
+            </div>
+            
+            <div class="flex items-center p-3 bg-green-50 rounded-lg border border-green-200">
+              <span class="text-2xl mr-3">📱</span>
+              <div>
+                <p class="font-medium text-gray-800">Phone</p>
+                <p class="text-sm text-gray-600">(555) 123-4567</p>
+              </div>
+            </div>
+
+            <div class="flex items-center p-3 bg-purple-50 rounded-lg border border-purple-200">
+              <span class="text-2xl mr-3">📍</span>
+              <div>
+                <p class="font-medium text-gray-800">Location</p>
+                <p class="text-sm text-gray-600">{{ selectedItem?.location || 'BC Campus' }}</p>
+              </div>
+            </div>
+          </div>
+
+          <button @click="closeMessageCard" class="w-full bg-secondary text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, computed } from 'vue'
-import { useItems } from '../backend/useItems'
+import { useItems } from '../../firebase/useItems'
 
 const props = defineProps({
-  searchQuery: { type: String, default: '' }
+  searchQuery: { type: String, default: '' },
+  user: { type: Object, default: null }
 })
+
+const emit = defineEmits(['showLogin'])
 
 const { items, loading, fetchItems } = useItems()
 
@@ -93,6 +145,8 @@ const categories = [
 ]
 
 const selectedCategory = ref('all')
+const showMessageCard = ref(false)
+const selectedItem = ref(null)
 
 const handleCategoryChange = (category) => {
   selectedCategory.value = category
@@ -100,7 +154,21 @@ const handleCategoryChange = (category) => {
 }
 
 const handleContact = (item) => {
-  alert(`Contact seller for: ${item.name}\n\n📧 Email: seller@bc.edu\n📱 (In a full app, this would open messaging!)`)
+  // Check if user is logged in
+  if (!props.user) {
+    // Show login modal if not logged in
+    emit('showLogin')
+    return
+  }
+  
+  // Show message card if logged in
+  selectedItem.value = item
+  showMessageCard.value = true
+}
+
+const closeMessageCard = () => {
+  showMessageCard.value = false
+  selectedItem.value = null
 }
 
 const getConditionColor = (condition) => {
@@ -111,6 +179,30 @@ const getConditionColor = (condition) => {
     'poor': 'bg-red-100 text-red-800'
   }
   return colors[condition?.toLowerCase()] || 'bg-gray-100 text-gray-800'
+}
+
+const formatPrice = (price) => {
+  if (!price) return '$0'
+  
+  const priceStr = String(price).trim().toUpperCase()
+  
+  // If it's FREE, return as is
+  if (priceStr === 'FREE' || priceStr === '0' || priceStr === '$0') {
+    return 'FREE'
+  }
+  
+  // If it already starts with $, return as is
+  if (priceStr.startsWith('$')) {
+    return priceStr
+  }
+  
+  // If it's a number, add $
+  if (!isNaN(priceStr)) {
+    return '$' + priceStr
+  }
+  
+  // Otherwise, add $ prefix
+  return '$' + priceStr
 }
 
 const getTimeAgo = (timestamp) => {

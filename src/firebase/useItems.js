@@ -1,5 +1,5 @@
 import { ref } from 'vue'
-import { db, storage } from '../firebase'
+import { db, storage } from './firebase'
 import { 
   collection, 
   addDoc, 
@@ -44,11 +44,11 @@ export function useItems() {
         ...doc.data()
       }))
 
-      console.log(`✅ Fetched ${items.value.length} items`)
+      console.log(`Fetched ${items.value.length} items`)
       return items.value
     } catch (err) {
       error.value = err.message
-      console.error('❌ Error fetching items:', err)
+      console.error('Error fetching items:', err)
       return []
     } finally {
       loading.value = false
@@ -60,7 +60,7 @@ export function useItems() {
     error.value = null
 
     try {
-      console.log('📤 Uploading image to Firebase Storage...')
+      console.log('Uploading image...')
       
       const timestamp = Date.now()
       const imageRef = storageRef(
@@ -83,11 +83,11 @@ export function useItems() {
         saved: 0
       })
 
-      console.log('✅ Item added with ID:', docRef.id)
+      console.log('Item added with ID:', docRef.id)
       return docRef.id
     } catch (err) {
       error.value = err.message
-      console.error('❌ Error adding item:', err)
+      console.error('Error adding item:', err)
       throw err
     } finally {
       loading.value = false

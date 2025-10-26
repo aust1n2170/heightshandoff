@@ -135,7 +135,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
-import { useItems } from '../backend/useItems'
+import { useItems } from '../../firebase/useItems'
 
 const emit = defineEmits(['itemPosted'])
 

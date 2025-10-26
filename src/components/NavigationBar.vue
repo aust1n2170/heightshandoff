@@ -3,7 +3,6 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
         <div class="flex items-center space-x-2 cursor-pointer" @click="$emit('navigate', 'feed')">
-          <span class="text-3xl">♻️</span>
           <span class="text-2xl font-bold">Thrift Loop</span>
         </div>
 
@@ -19,6 +18,18 @@
             :class="['hover:text-gray-200 transition font-medium', currentView === 'post' ? 'border-b-2 border-white' : '']"
           >
             Post Item
+          </button>
+          <button
+            @click="$emit('navigate', 'parking')"
+            :class="['hover:text-gray-200 transition font-medium', currentView === 'parking' ? 'border-b-2 border-white' : '']"
+          >
+            Parking
+          </button>
+          <button
+            @click="$emit('navigate', 'buy-requests')"
+            :class="['hover:text-gray-200 transition font-medium', currentView === 'buy-requests' ? 'border-b-2 border-white' : '']"
+          >
+            Buy Requests
           </button>
           <div class="relative flex items-center space-x-2">
             <div class="relative">
@@ -47,6 +58,31 @@
               </div>
             </div>
           </div>
+          
+          <!-- User Menu -->
+          <div class="flex items-center space-x-2">
+            <div v-if="user" class="flex items-center space-x-2">
+              <button
+                @click="$emit('navigate', 'profile')"
+                class="text-sm hidden lg:block underline cursor-pointer hover:text-gray-200 transition"
+              >
+                {{ user.email }}
+              </button>
+              <button
+                @click="handleLogout"
+                class="px-4 py-1.5 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition font-medium"
+              >
+                Logout
+              </button>
+            </div>
+            <button
+              v-else
+              @click="$emit('toggleLogin')"
+              class="px-4 py-1.5 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition font-medium"
+            >
+              Login
+            </button>
+          </div>
         </div>
 
         <div class="md:hidden">
@@ -71,6 +107,9 @@
           class="w-full px-3 py-2 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-white"
         />
         <button @click="handleMobileNav('post')" class="block w-full text-left py-2 hover:bg-green-600 px-3 rounded">Post Item</button>
+        <button @click="handleMobileNav('parking')" class="block w-full text-left py-2 hover:bg-green-600 px-3 rounded">Parking</button>
+        <button @click="handleMobileNav('buy-requests')" class="block w-full text-left py-2 hover:bg-green-600 px-3 rounded">Buy Requests</button>
+        <button v-if="user" @click="handleMobileNav('profile')" class="block w-full text-left py-2 hover:bg-green-600 px-3 rounded">Profile</button>
       </div>
     </div>
   </nav>
@@ -78,13 +117,15 @@
 
 <script setup>
 import { ref, computed, onMounted } from 'vue'
-import { useItems } from '../backend/useItems'
+import { useItems } from '../firebase/useItems'
+import { useAuth } from '../firebase/useAuth'
 
-defineProps({
-  currentView: { type: String, default: 'feed' }
+const props = defineProps({
+  currentView: { type: String, default: 'feed' },
+  user: { type: Object, default: null }
 })
 
-const emit = defineEmits(['navigate', 'search'])
+const emit = defineEmits(['navigate', 'search', 'toggleLogin'])
 const mobileMenuOpen = ref(false)
 const searchQuery = ref('')
 const showSuggestions = ref(false)
@@ -124,6 +165,11 @@ const handleBlur = () => {
 const handleMobileNav = (view) => {
   emit('navigate', view)
   mobileMenuOpen.value = false
+}
+
+const handleLogout = async () => {
+  const { signOut } = useAuth()
+  await signOut()
 }
 
 onMounted(() => {
