@@ -28,9 +28,10 @@
 
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div v-for="(item, index) in filteredItems" :key="item.id" 
-        class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 animate-fadeIn"
-        :style="{ animationDelay: `${index * 0.1}s` }">
-        <div @click="enlargeImage(item.imageUrl)" class="cursor-pointer hover:opacity-90 transition">
+        class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 animate-fadeIn cursor-pointer"
+        :style="{ animationDelay: `${index * 0.1}s` }"
+        @click="viewItemDetail(item)">
+        <div @click.stop="enlargeImage(item.imageUrl)" class="cursor-pointer hover:opacity-90 transition">
           <img :src="item.imageUrl" :alt="item.name" class="w-full h-48 object-cover" />
         </div>
         <div class="p-4">
@@ -46,7 +47,7 @@
             <span>📍 {{ item.location || 'BC Campus' }}</span>
             <span>{{ getTimeAgo(item.createdAt) }}</span>
           </div>
-          <button @click="handleContact(item)" class="w-full mt-4 bg-secondary text-white py-2 rounded-lg hover:bg-blue-700 transition-all duration-300 font-medium hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl">
+          <button @click.stop="handleContact(item)" class="w-full mt-4 bg-secondary text-white py-2 rounded-lg hover:bg-blue-700 transition-all duration-300 font-medium hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl">
             Contact Seller
           </button>
         </div>
@@ -60,66 +61,25 @@
       </div>
     </div>
 
-    <div v-if="showMessageCard" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
-        <div class="p-6 border-b border-gray-200 flex items-center justify-between">
-          <h3 class="text-xl font-bold text-gray-800">Contact Seller</h3>
-          <button @click="closeMessageCard" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-        </div>
-        
-        <div class="p-6">
-          <div class="mb-4">
-            <img v-if="selectedItem?.imageUrl" :src="selectedItem.imageUrl" :alt="selectedItem.name" class="w-full h-32 object-cover rounded-lg mb-3" />
-            <h4 class="text-lg font-semibold text-gray-800 mb-2">{{ selectedItem?.name }}</h4>
-            <p class="text-2xl font-bold text-green-600 mb-3">{{ formatPrice(selectedItem?.price) }}</p>
-            <p class="text-gray-600 text-sm mb-4">{{ selectedItem?.description }}</p>
-          </div>
-
-          <div class="space-y-3 mb-6">
-            <div class="flex items-center p-3 bg-blue-50 rounded-lg border border-blue-200">
-              <span class="text-2xl mr-3">📧</span>
-              <div>
-                <p class="font-medium text-gray-800">Email</p>
-                <p class="text-sm text-gray-600">seller@bc.edu</p>
-              </div>
-            </div>
-            
-            <div class="flex items-center p-3 bg-green-50 rounded-lg border border-green-200">
-              <span class="text-2xl mr-3">📱</span>
-              <div>
-                <p class="font-medium text-gray-800">Phone</p>
-                <p class="text-sm text-gray-600">(555) 123-4567</p>
-              </div>
-            </div>
-
-            <div class="flex items-center p-3 bg-purple-50 rounded-lg border border-purple-200">
-              <span class="text-2xl mr-3">📍</span>
-              <div>
-                <p class="font-medium text-gray-800">Location</p>
-                <p class="text-sm text-gray-600">{{ selectedItem?.location || 'BC Campus' }}</p>
-              </div>
-            </div>
-          </div>
-
-          <button @click="closeMessageCard" class="w-full bg-secondary text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium">
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
+    <ContactSellerModal 
+      :show="showMessageCard" 
+      :item="selectedItem" 
+      @close="closeMessageCard" 
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useItems } from '../../firebase/useItems'
+import ContactSellerModal from '../common/ContactSellerModal.vue'
 
 const props = defineProps({
   searchQuery: { type: String, default: '' },
   user: { type: Object, default: null }
 })
 
-const emit = defineEmits(['showLogin'])
+const emit = defineEmits(['showLogin', 'viewItemDetail'])
 
 const { items, loading, fetchItems } = useItems()
 
@@ -176,6 +136,10 @@ const handleContact = (item) => {
 const closeMessageCard = () => {
   showMessageCard.value = false
   selectedItem.value = null
+}
+
+const viewItemDetail = (item) => {
+  emit('viewItemDetail', item)
 }
 
 const enlargeImage = (imageUrl) => {

@@ -2,7 +2,8 @@
   <nav class="bg-primary text-white shadow-lg">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex justify-between items-center h-16">
-        <div class="flex items-center space-x-2 cursor-pointer" @click="$emit('navigate', 'feed')">
+        <div class="flex items-center cursor-pointer" @click="$emit('navigate', 'feed')">
+          <img src="/logo.png" alt="Logo" class="h-16 w-16 object-contain" />
           <span class="text-2xl font-bold">Heights Handoff</span>
         </div>
 
