@@ -71,8 +71,8 @@ export function useItems() {
       await uploadBytes(imageRef, imageFile)
       const imageUrl = await getDownloadURL(imageRef)
       
-      console.log('✅ Image uploaded:', imageUrl)
-      console.log('📝 Adding item to Firestore...')
+      console.log('Image uploaded:', imageUrl)
+      console.log('Adding item to Firestore...')
 
       const docRef = await addDoc(collection(db, 'items'), {
         ...itemData,

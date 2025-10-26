@@ -14,7 +14,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    console.log('🔍 Analyzing image...')
+    console.log('Analyzing image...')
 
     const openai = new OpenAI({
       apiKey: process.env.OPENAI_API_KEY
@@ -72,7 +72,7 @@ export default async function handler(req, res) {
       const jsonMatch = cleanResult.match(/\{[\s\S]*\}/)
       if (jsonMatch) {
         parsed = JSON.parse(jsonMatch[0])
-        console.log('✅ Parsed result:', parsed)
+        console.log('Parsed result:', parsed)
       } else {
         throw new Error('No JSON found in response')
       }
