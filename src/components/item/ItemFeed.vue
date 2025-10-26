@@ -8,16 +8,16 @@
           v-for="cat in categories"
           :key="cat.value"
           @click="handleCategoryChange(cat.value)"
-          :class="['px-4 py-2 rounded-full font-medium transition', selectedCategory === cat.value ? 'bg-primary text-white' : 'bg-gray-200 text-gray-700 hover:bg-gray-300']"
+          :class="['px-4 py-2 rounded-full font-medium transition-all duration-300 hover:scale-110', selectedCategory === cat.value ? 'bg-primary text-white shadow-lg' : 'bg-gray-200 text-gray-700 hover:bg-gray-300']"
         >
           {{ cat.label }}
         </button>
       </div>
     </div>
 
-    <div v-if="loading" class="text-center py-12">
-      <div class="inline-block animate-spin text-4xl mb-4">⚡</div>
-      <p class="text-gray-500 text-lg">Loading items...</p>
+    <div v-if="loading" class="text-center py-12 animate-pulse">
+      <div class="inline-block text-6xl mb-4 animate-bounce">⚡</div>
+      <p class="text-gray-500 text-lg animate-pulse">Loading items...</p>
     </div>
 
     <div v-else-if="filteredItems.length === 0" class="text-center py-12">
@@ -27,7 +27,9 @@
     </div>
 
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div v-for="item in filteredItems" :key="item.id" class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
+      <div v-for="(item, index) in filteredItems" :key="item.id" 
+        class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 animate-fadeIn"
+        :style="{ animationDelay: `${index * 0.1}s` }">
         <div @click="enlargeImage(item.imageUrl)" class="cursor-pointer hover:opacity-90 transition">
           <img :src="item.imageUrl" :alt="item.name" class="w-full h-48 object-cover" />
         </div>
@@ -44,7 +46,7 @@
             <span>📍 {{ item.location || 'BC Campus' }}</span>
             <span>{{ getTimeAgo(item.createdAt) }}</span>
           </div>
-          <button @click="handleContact(item)" class="w-full mt-4 bg-secondary text-white py-2 rounded-lg hover:bg-blue-700 transition font-medium">
+          <button @click="handleContact(item)" class="w-full mt-4 bg-secondary text-white py-2 rounded-lg hover:bg-blue-700 transition-all duration-300 font-medium hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl">
             Contact Seller
           </button>
         </div>
@@ -254,5 +256,36 @@ defineExpose({
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.animate-slideIn {
+  animation: slideIn 0.4s ease-out;
 }
 </style>

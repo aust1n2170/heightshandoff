@@ -9,25 +9,25 @@
         <div class="hidden md:flex items-center space-x-6">
           <button
             @click="$emit('navigate', 'feed')"
-            :class="['hover:text-gray-200 transition font-medium', currentView === 'feed' ? 'border-b-2 border-white' : '']"
+            :class="['hover:text-gray-200 transition-all duration-300 hover:scale-110 font-medium relative', currentView === 'feed' ? 'border-b-2 border-white' : '']"
           >
             Browse
           </button>
           <button
             @click="$emit('navigate', 'post')"
-            :class="['hover:text-gray-200 transition font-medium', currentView === 'post' ? 'border-b-2 border-white' : '']"
+            :class="['hover:text-gray-200 transition-all duration-300 hover:scale-110 font-medium relative', currentView === 'post' ? 'border-b-2 border-white' : '']"
           >
             Post Item
           </button>
           <button
             @click="$emit('navigate', 'parking')"
-            :class="['hover:text-gray-200 transition font-medium', currentView === 'parking' ? 'border-b-2 border-white' : '']"
+            :class="['hover:text-gray-200 transition-all duration-300 hover:scale-110 font-medium relative', currentView === 'parking' ? 'border-b-2 border-white' : '']"
           >
             Parking
           </button>
           <button
             @click="$emit('navigate', 'buy-requests')"
-            :class="['hover:text-gray-200 transition font-medium', currentView === 'buy-requests' ? 'border-b-2 border-white' : '']"
+            :class="['hover:text-gray-200 transition-all duration-300 hover:scale-110 font-medium relative', currentView === 'buy-requests' ? 'border-b-2 border-white' : '']"
           >
             Buy Requests
           </button>
@@ -46,7 +46,8 @@
                 class="pl-10 pr-3 py-1.5 rounded-lg text-gray-800 focus:outline-none focus:ring-2 focus:ring-white w-64"
               />
             </div>
-            <div v-if="showSuggestions && searchSuggestions.length > 0 && searchQuery" class="absolute top-full left-0 mt-1 w-64 bg-white rounded-lg shadow-lg max-h-64 overflow-y-auto z-50">
+            <transition name="fade">
+            <div v-if="showSuggestions && searchSuggestions.length > 0 && searchQuery" class="absolute top-full left-0 mt-1 w-64 bg-white rounded-lg shadow-lg max-h-64 overflow-y-auto z-50 animate-slideIn">
               <div
                 v-for="suggestion in searchSuggestions"
                 :key="suggestion.id"
@@ -57,9 +58,9 @@
                 <div class="text-xs text-gray-500 truncate">{{ suggestion.category }} • {{ suggestion.price }}</div>
               </div>
             </div>
+            </transition>
           </div>
           
-          <!-- User Menu -->
           <div class="flex items-center space-x-2">
             <div v-if="user" class="flex items-center space-x-2">
               <button
@@ -70,7 +71,7 @@
               </button>
               <button
                 @click="handleLogout"
-                class="px-4 py-1.5 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition font-medium"
+                class="px-4 py-1.5 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition-all duration-300 font-medium hover:scale-105 active:scale-95"
               >
                 Logout
               </button>
@@ -78,7 +79,7 @@
             <button
               v-else
               @click="$emit('toggleLogin')"
-              class="px-4 py-1.5 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition font-medium"
+              class="px-4 py-1.5 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition-all duration-300 font-medium hover:scale-105 active:scale-95"
             >
               Login
             </button>
@@ -176,3 +177,27 @@ onMounted(() => {
   fetchItems()
 })
 </script>
+
+<style scoped>
+@keyframes slideIn {
+  from {
+    transform: translateX(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+.animate-slideIn {
+  animation: slideIn 0.3s ease-out;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.fade-enter-from, .fade-leave-to {
+  opacity: 0;
+}
+</style>

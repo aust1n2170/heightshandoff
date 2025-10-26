@@ -10,6 +10,9 @@ export default {
         primary: '#8A100B',
         secondary: '#B29D6C',
         accent: '#f59e0b',
+      },
+      fontFamily: {
+        'subvario': ['"SubVario OT W03 Medium"', 'sans-serif'],
       }
     },
   },
