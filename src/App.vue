@@ -38,7 +38,7 @@
 
     <footer class="bg-gray-800 text-white py-8 mt-16">
       <div class="max-w-7xl mx-auto px-4 text-center">
-        <div class="text-2xl mb-2">Thrift Loop</div>
+        <div class="text-2xl mb-2">Heights Handoff</div>
         <p class="text-gray-400 mb-4">Building BC's Circular Economy</p>
         <p class="text-gray-500 text-xs mt-6">
           by Austin Ngo, Eddie Yang, Eshaan Chatrath, Kai Shim

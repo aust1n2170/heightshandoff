@@ -123,6 +123,7 @@
                 <option value="clothing">Clothing</option>
                 <option value="textbooks">Textbooks</option>
                 <option value="decor">Decor</option>
+                <option value="events">Events</option>
                 <option value="other">Other</option>
               </select>
             </div>
@@ -203,6 +204,21 @@
         </div>
       </div>
     </div>
+
+    <!-- Success Modal -->
+    <div v-if="showSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
+        <div class="p-6 text-center">
+          <div class="text-6xl mb-4 animate-bounce">🎉</div>
+          <h3 class="text-2xl font-bold text-gray-800 mb-2">Success!</h3>
+          <p class="text-gray-600 mb-6">Buy request posted successfully!</p>
+          <p class="text-gray-600 mb-6">Your request is now live on the marketplace!</p>
+          <button @click="closeSuccessModal" class="w-full bg-primary text-white py-3 rounded-lg hover:bg-green-700 transition font-medium">
+            Got it!
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -220,6 +236,7 @@ const { buyRequests, loading, fetchBuyRequests, addBuyRequest } = useBuyRequests
 
 const viewMode = ref('browse')
 const showContactModal = ref(false)
+const showSuccessModal = ref(false)
 const selectedRequest = ref(null)
 
 const requestForm = ref({
@@ -245,6 +262,10 @@ const handleReplyRequest = (request) => {
 const closeContactModal = () => {
   showContactModal.value = false
   selectedRequest.value = null
+}
+
+const closeSuccessModal = () => {
+  showSuccessModal.value = false
 }
 
 const getStatusClass = (status) => {
@@ -287,7 +308,8 @@ const submitRequest = async () => {
       location: requestForm.value.location || 'BC Campus'
     })
     
-    alert('Buy request posted successfully!')
+    // Show success modal
+    showSuccessModal.value = true
     
     // Refresh the buy requests list
     await fetchBuyRequests()

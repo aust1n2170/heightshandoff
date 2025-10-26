@@ -147,6 +147,7 @@ const categories = [
   { value: 'clothing', label: 'Clothing' },
   { value: 'textbooks', label: 'Textbooks' },
   { value: 'decor', label: 'Decor' },
+  { value: 'events', label: 'Events' },
   { value: 'other', label: 'Other' }
 ]
 

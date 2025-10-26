@@ -8,17 +8,15 @@
           </div>
           <div>
             <h1 class="text-3xl font-bold">{{ userEmail }}</h1>
-            <p class="text-gray-300 text-sm">Thrift Loop Member</p>
+            <p class="text-gray-300 text-sm">Heights Handoff Member</p>
           </div>
         </div>
       </div>
 
-      <!-- Profile Content -->
       <div class="p-8">
         <h2 class="text-2xl font-bold mb-6 text-gray-800">Profile Information</h2>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <!-- Email -->
           <div class="bg-blue-50 rounded-lg p-6 border border-blue-200">
             <div class="flex items-center mb-2">
               <span class="text-2xl mr-3">📧</span>
@@ -27,7 +25,6 @@
             <p class="text-gray-600">{{ userEmail }}</p>
           </div>
 
-          <!-- Phone Number -->
           <div class="bg-green-50 rounded-lg p-6 border border-green-200">
             <div class="flex items-center mb-2">
               <span class="text-2xl mr-3">📱</span>
@@ -37,7 +34,6 @@
           </div>
         </div>
 
-        <!-- Stats -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div class="bg-primary text-white rounded-lg p-6 text-center">
             <div class="text-4xl mb-2">{{ itemsPosted }}</div>
@@ -49,7 +45,6 @@
           </div>
         </div>
 
-        <!-- My Listings -->
         <div class="mb-8">
           <h3 class="text-xl font-semibold text-gray-800 mb-4">My Listings</h3>
           <div v-if="myItems.length === 0" class="text-center py-8 bg-gray-50 rounded-lg">
@@ -76,7 +71,6 @@
           </div>
         </div>
 
-        <!-- Actions -->
         <div class="border-t border-gray-200 pt-6">
           <button 
             @click="handleEditProfile"
@@ -94,7 +88,6 @@
       </div>
     </div>
 
-    <!-- Edit Profile Modal -->
     <div v-if="showEditModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div class="bg-white rounded-lg shadow-xl max-w-md w-full">
         <div class="p-6 border-b border-gray-200 flex items-center justify-between">
@@ -186,7 +179,6 @@ const handleSaveProfile = async () => {
     })
     alert('Profile updated successfully!')
     showEditModal.value = false
-    // Reload user profile
     await loadUserProfile()
   } catch (error) {
     console.error('Error updating profile:', error)

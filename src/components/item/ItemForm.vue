@@ -8,16 +8,39 @@
           <label class="block text-sm font-medium text-gray-700 mb-2">
             Upload Photo *
           </label>
+          
           <input 
+            ref="fileInput"
             type="file" 
             accept="image/*" 
             @change="handleImageUpload" 
-            class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-green-600 focus:outline-none" 
+            class="hidden" 
             required 
           />
           
-          <div v-if="previewUrl" class="mt-4">
-            <img :src="previewUrl" alt="Preview" class="h-64 w-full object-cover rounded-lg shadow-md" />
+          <div
+            @click="$refs.fileInput.click()"
+            @dragover.prevent="isDragging = true"
+            @dragleave.prevent="isDragging = false"
+            @drop.prevent="handleDrop"
+            :class="[
+              'border-2 border-dashed rounded-lg p-12 text-center cursor-pointer transition-all',
+              isDragging ? 'border-secondary bg-secondary/10' : 'border-gray-300 hover:border-secondary hover:bg-gray-50'
+            ]"
+          >
+                                                <div v-if="!previewUrl" class="space-y-4">
+              <div class="flex justify-center">
+                <img :src="uploadIcon" alt="Upload" class="w-24 h-24 opacity-50" />
+              </div>
+              <div>
+                <p class="text-lg font-semibold text-gray-700">Click to upload or drag and drop</p>
+   
+              </div>
+            </div>
+            <div v-else class="space-y-4">
+              <img :src="previewUrl" alt="Preview" class="h-48 w-full object-cover rounded-lg shadow-md mx-auto" />
+              <p class="text-sm text-gray-600">Click to change photo</p>
+            </div>
           </div>
         </div>
 
@@ -49,7 +72,7 @@
               v-model="form.name" 
               type="text" 
               placeholder="e.g., Modern Desk Lamp" 
-              class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-green-600 focus:outline-none" 
+              class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-secondary focus:outline-none" 
               required 
             />
           </div>
@@ -58,7 +81,7 @@
             <label class="block text-sm font-medium text-gray-700 mb-2">Category *</label>
             <select 
               v-model="form.category" 
-              class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-green-600 focus:outline-none" 
+              class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-secondary focus:outline-none" 
               required
             >
               <option value="">Select category</option>
@@ -67,6 +90,7 @@
               <option value="clothing">Clothing</option>
               <option value="textbooks">Textbooks</option>
               <option value="decor">Decor</option>
+              <option value="events">Events</option>
               <option value="other">Other</option>
             </select>
           </div>
@@ -75,7 +99,7 @@
             <label class="block text-sm font-medium text-gray-700 mb-2">Condition *</label>
             <select 
               v-model="form.condition" 
-              class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-green-600 focus:outline-none" 
+              class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-secondary focus:outline-none" 
               required
             >
               <option value="">Select condition</option>
@@ -92,7 +116,7 @@
               v-model="form.description" 
               placeholder="Brief description of the item" 
               rows="3" 
-              class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-green-600 focus:outline-none"
+              class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-secondary focus:outline-none"
             />
           </div>
           
@@ -102,7 +126,7 @@
               v-model="form.price" 
               type="text" 
               placeholder="e.g., $15 or FREE" 
-              class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-green-600 focus:outline-none" 
+              class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-secondary focus:outline-none" 
               required 
             />
           </div>
@@ -113,7 +137,7 @@
               v-model="form.location" 
               type="text" 
               placeholder="e.g., Walsh Hall, 2nd Floor" 
-              class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-green-600 focus:outline-none" 
+              class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-secondary focus:outline-none" 
               required 
             />
           </div>
@@ -136,6 +160,7 @@
 <script setup>
 import { ref, reactive } from 'vue'
 import { useItems } from '../../firebase/useItems'
+import uploadIcon from '../../assets/upload-icon.png'
 
 const emit = defineEmits(['itemPosted'])
 
@@ -146,6 +171,8 @@ const previewUrl = ref(null)
 const analyzing = ref(false)
 const analyzed = ref(false)
 const analyzeError = ref(null)
+const isDragging = ref(false)
+const fileInput = ref(null)
 
 const form = reactive({
   name: '',
@@ -173,12 +200,28 @@ const fileToBase64 = (file) => {
 const handleImageUpload = async (event) => {
   const file = event.target.files[0]
   if (!file) return
+  await processFile(file)
+}
 
+const handleDrop = async (event) => {
+  const file = event.dataTransfer.files[0]
+  if (!file) return
+  
+  if (!file.type.startsWith('image/')) {
+    alert('Please upload an image file')
+    return
+  }
+  
+  await processFile(file)
+}
+
+const processFile = async (file) => {
   imageFile.value = file
   previewUrl.value = URL.createObjectURL(file)
   analyzed.value = false
   analyzeError.value = null
   analyzing.value = true
+  isDragging.value = false
 
   console.log('Starting AI analysis...')
 
