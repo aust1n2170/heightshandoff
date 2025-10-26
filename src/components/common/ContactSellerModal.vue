@@ -19,7 +19,7 @@
             <span class="text-2xl mr-3">📧</span>
             <div>
               <p class="font-medium text-gray-800">Email</p>
-              <p class="text-sm text-gray-600">seller@bc.edu</p>
+              <p class="text-sm text-gray-600">{{ item.email || 'Not provided' }}</p>
             </div>
           </div>
           
@@ -27,7 +27,7 @@
             <span class="text-2xl mr-3">📱</span>
             <div>
               <p class="font-medium text-gray-800">Phone</p>
-              <p class="text-sm text-gray-600">(555) 123-4567</p>
+              <p class="text-sm text-gray-600">{{ item.phone || 'Not provided' }}</p>
             </div>
           </div>
 

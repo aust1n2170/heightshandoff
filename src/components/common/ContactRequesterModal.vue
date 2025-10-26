@@ -9,7 +9,7 @@
       <div class="p-6">
         <div class="mb-4">
           <h4 class="text-lg font-semibold text-gray-800 mb-2">{{ request?.title }}</h4>
-          <p class="text-green-600 font-bold text-xl mb-3">{{ request?.budget }}</p>
+          <p class="text-green-600 font-bold text-xl mb-3">{{ formatBudget(request?.budget) }}</p>
           <p class="text-gray-600 text-sm mb-4">{{ request?.description }}</p>
         </div>
 
@@ -18,7 +18,7 @@
             <span class="text-2xl mr-3">📧</span>
             <div>
               <p class="font-medium text-gray-800">Email</p>
-              <p class="text-sm text-gray-600">requester@bc.edu</p>
+              <p class="text-sm text-gray-600">{{ request?.email || 'Not provided' }}</p>
             </div>
           </div>
           
@@ -26,7 +26,7 @@
             <span class="text-2xl mr-3">📱</span>
             <div>
               <p class="font-medium text-gray-800">Phone</p>
-              <p class="text-sm text-gray-600">(555) 123-4567</p>
+              <p class="text-sm text-gray-600">{{ request?.phone || 'Not provided' }}</p>
             </div>
           </div>
 
@@ -63,5 +63,20 @@ const emit = defineEmits(['close'])
 
 const handleClose = () => {
   emit('close')
+}
+
+const formatBudget = (budget) => {
+  if (!budget) return '$0'
+  
+  // Remove any existing $ and whitespace
+  const cleanBudget = budget.toString().replace(/[$\s]/g, '')
+  
+  // If it already starts with $, just return it
+  if (budget.startsWith('$')) {
+    return budget
+  }
+  
+  // Add $ prefix
+  return `$${cleanBudget}`
 }
 </script>

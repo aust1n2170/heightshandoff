@@ -141,6 +141,27 @@
               required 
             />
           </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Contact Email</label>
+              <input 
+                v-model="form.email" 
+                type="email" 
+                placeholder="your.email@bc.edu" 
+                class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-secondary focus:outline-none" 
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Contact Phone</label>
+              <input 
+                v-model="form.phone" 
+                type="tel" 
+                placeholder="(555) 123-4567" 
+                class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-secondary focus:outline-none" 
+              />
+            </div>
+          </div>
         </div>
 
         <button 
@@ -158,13 +179,21 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useItems } from '../../firebase/useItems'
 import uploadIcon from '../../assets/upload-icon.png'
+import { db } from '../../firebase/firebase'
+import { doc, getDoc } from 'firebase/firestore'
+
+const props = defineProps({
+  user: { type: Object, default: null }
+})
 
 const emit = defineEmits(['itemPosted'])
 
 const { addItem, loading: posting } = useItems()
+
+const userProfile = ref(null)
 
 const imageFile = ref(null)
 const previewUrl = ref(null)
@@ -180,7 +209,9 @@ const form = reactive({
   condition: '',
   description: '',
   price: '',
-  location: ''
+  location: '',
+  email: '',
+  phone: ''
 })
 
 const fileToBase64 = (file) => {
@@ -263,6 +294,25 @@ const processFile = async (file) => {
   }
 }
 
+const loadUserProfile = async () => {
+  if (!props.user?.uid) return
+  
+  try {
+    const userRef = doc(db, 'users', props.user.uid)
+    const userSnap = await getDoc(userRef)
+    
+    if (userSnap.exists()) {
+      userProfile.value = userSnap.data()
+      
+      // Pre-fill form with user data
+      form.email = props.user.email || ''
+      form.phone = userProfile.value?.phoneNumber || ''
+    }
+  } catch (error) {
+    console.error('Error loading user profile:', error)
+  }
+}
+
 const handleSubmit = async () => {
   if (!imageFile.value) {
     alert('Please upload an image')
@@ -282,6 +332,9 @@ const handleSubmit = async () => {
     analyzed.value = false
     analyzeError.value = null
     
+    // Re-load user profile data
+    await loadUserProfile()
+    
     emit('itemPosted')
     
   } catch (error) {
@@ -289,6 +342,10 @@ const handleSubmit = async () => {
     alert('Error posting item. Please try again.\n\n' + error.message)
   }
 }
+
+onMounted(() => {
+  loadUserProfile()
+})
 </script>
 
 <style scoped>

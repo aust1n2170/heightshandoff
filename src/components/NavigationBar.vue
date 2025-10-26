@@ -56,10 +56,16 @@
                 v-for="suggestion in searchSuggestions"
                 :key="suggestion.id"
                 @mousedown.prevent="selectSuggestion(suggestion.name)"
-                class="px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
+                class="px-4 py-2 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0 flex items-center space-x-3"
               >
-                <div class="font-medium text-gray-900">{{ suggestion.name }}</div>
-                <div class="text-xs text-gray-500 truncate">{{ suggestion.category }} • {{ suggestion.price }}</div>
+                <img v-if="suggestion.imageUrl" :src="suggestion.imageUrl" :alt="suggestion.name" class="w-12 h-12 object-cover rounded" />
+                <div class="flex-1 min-w-0">
+                  <div class="font-medium text-gray-900 truncate">{{ suggestion.name }}</div>
+                  <div class="text-xs text-gray-500 truncate">
+                    <span>{{ suggestion.category?.charAt(0).toUpperCase() + suggestion.category?.slice(1) }} •</span>
+                    <span class="text-green-600 font-semibold">{{ suggestion.price }}</span>
+                  </div>
+                </div>
               </div>
             </div>
             </transition>
@@ -75,7 +81,7 @@
               </button>
               <button
                 @click="handleLogout"
-                class="px-4 py-1.5 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition-all duration-300 font-medium hover:scale-105 active:scale-95"
+                class="px-4 py-1.5 bg-secondary text-white rounded-lg hover:bg-blue-700 transition-all duration-300 font-medium hover:scale-105 active:scale-95"
               >
                 Logout
               </button>
@@ -83,7 +89,7 @@
             <button
               v-else
               @click="$emit('toggleLogin')"
-              class="px-4 py-1.5 bg-white text-gray-800 rounded-lg hover:bg-gray-100 transition-all duration-300 font-medium hover:scale-105 active:scale-95"
+              class="px-4 py-1.5 bg-secondary text-white rounded-lg hover:bg-blue-700 transition-all duration-300 font-medium hover:scale-105 active:scale-95"
             >
               Login
             </button>
@@ -161,6 +167,11 @@ const selectSuggestion = (name) => {
   searchQuery.value = name
   emit('search', searchQuery.value)
   showSuggestions.value = false
+  
+  // Navigate to browse page if not already there
+  if (props.currentView !== 'feed') {
+    emit('navigate', 'feed')
+  }
 }
 
 const handleBlur = () => {

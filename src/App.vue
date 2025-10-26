@@ -26,6 +26,7 @@
       />
       <ItemForm 
         v-else-if="currentView === 'post'"
+        :user="user"
         @itemPosted="handleItemPosted"
       />
       <ParkingPage 

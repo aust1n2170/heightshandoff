@@ -25,48 +25,23 @@
     </div>
 
     <div v-else class="space-y-6">
-      <div class="bg-white rounded-lg shadow-lg p-6">
+      <div 
+        v-for="spot in parkingSpots" 
+        :key="spot.address"
+        class="bg-white rounded-lg shadow-lg p-6"
+      >
         <div class="flex items-start justify-between mb-4">
           <div>
-            <h3 class="text-xl font-semibold text-gray-800">133 Foster Street</h3>
-            <p class="text-gray-600 text-sm">0.5 miles from BC</p>
+            <h3 class="text-xl font-semibold text-gray-800">{{ spot.address }}</h3>
+            <p class="text-gray-600 text-sm">{{ spot.distance }}</p>
           </div>
-          <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">Available</span>
+          <span :class="['px-3 py-1 rounded-full text-sm font-medium', 
+            spot.status === 'Available' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800']">
+            {{ spot.status }}
+          </span>
         </div>
         <div class="flex items-center justify-between">
-          <div class="text-2xl font-bold text-primary">$200/mo</div>
-          <button class="px-6 py-2 bg-secondary text-white rounded-lg hover:bg-blue-700 transition font-medium">
-            View Details
-          </button>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-lg shadow-lg p-6">
-        <div class="flex items-start justify-between mb-4">
-          <div>
-            <h3 class="text-xl font-semibold text-gray-800">245 Lake Street</h3>
-            <p class="text-gray-600 text-sm">0.8 miles from BC</p>
-          </div>
-          <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">Available</span>
-        </div>
-        <div class="flex items-center justify-between">
-          <div class="text-2xl font-bold text-primary">$180/mo</div>
-          <button class="px-6 py-2 bg-secondary text-white rounded-lg hover:bg-blue-700 transition font-medium">
-            View Details
-          </button>
-        </div>
-      </div>
-
-      <div class="bg-white rounded-lg shadow-lg p-6">
-        <div class="flex items-start justify-between mb-4">
-          <div>
-            <h3 class="text-xl font-semibold text-gray-800">189 Foster Street</h3>
-            <p class="text-gray-600 text-sm">0.3 miles from BC</p>
-          </div>
-          <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">Pending</span>
-        </div>
-        <div class="flex items-center justify-between">
-          <div class="text-2xl font-bold text-primary">$220/mo</div>
+          <div class="text-2xl font-bold text-primary">{{ spot.price }}</div>
           <button class="px-6 py-2 bg-secondary text-white rounded-lg hover:bg-blue-700 transition font-medium">
             View Details
           </button>
@@ -124,21 +99,6 @@ import { ref, onMounted, nextTick, watch } from 'vue'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
-import icon from 'leaflet/dist/images/marker-icon.png'
-import iconShadow from 'leaflet/dist/images/marker-shadow.png'
-
-const DefaultIcon = L.Icon.extend({
-  options: {
-    iconUrl: icon,
-    shadowUrl: iconShadow
-  }
-})
-
-L.Icon.Default.mergeOptions({
-  iconUrl: icon,
-  shadowUrl: iconShadow
-})
-
 const showMap = ref(true)
 const showAddForm = ref(false)
 const spotForm = ref({
@@ -150,6 +110,33 @@ const spotForm = ref({
 
 const bcLat = 42.3387
 const bcLng = -71.1691
+
+const parkingSpots = [
+  { 
+    lat: 42.34589, 
+    lng: -71.15762, 
+    address: '160 Foster Street', 
+    price: '$200/mo',
+    distance: '0.5 miles from BC',
+    status: 'Available'
+  },
+  { 
+    lat: 42.34801, 
+    lng: -71.16016, 
+    address: '245 Lake Street', 
+    price: '$180/mo',
+    distance: '0.8 miles from BC',
+    status: 'Available'
+  },
+  { 
+    lat: 42.33675, 
+    lng: -71.17435, 
+    address: '18 Crosby Rd', 
+    price: '$220/mo',
+    distance: '0.3 miles from BC',
+    status: 'Pending'
+  }
+]
 
 let map = null
 
@@ -166,15 +153,26 @@ const initMap = () => {
       maxZoom: 19
     }).addTo(map)
 
-    //CUSTOM SPOTS -- REMOVE LATER LOL
-    const parkingSpots = [
-      { lat: 42.3400, lng: -71.1700, address: '133 Foster Street', price: '$200/mo' },
-      { lat: 42.3370, lng: -71.1680, address: '245 Lake Street', price: '$180/mo' },
-      { lat: 42.3390, lng: -71.1710, address: '189 Foster Street', price: '$220/mo' }
-    ]
-
     parkingSpots.forEach(spot => {
-      L.marker([spot.lat, spot.lng])
+      const customIcon = L.divIcon({
+        className: 'custom-marker',
+        html: `
+          <div style="
+            background-color: #8A100B;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 12px;
+            white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          ">${spot.price}</div>
+        `,
+        iconSize: [100, 30],
+        iconAnchor: [50, 30]
+      })
+
+      L.marker([spot.lat, spot.lng], { icon: customIcon })
         .addTo(map)
         .bindPopup(`<b>${spot.address}</b><br>${spot.price}`)
     })
@@ -182,16 +180,13 @@ const initMap = () => {
 }
 
 watch(showMap, (newValue) => {
-  if (newValue) {
-    setTimeout(() => {
-      initMap()
-    }, 100)
+  if (newValue && !map) {
+    initMap()
   }
 })
 
 const submitSpot = () => {
   console.log('Submitting parking spot:', spotForm.value)
-  // TODO: Add to Firestore
   alert('Parking spot listed successfully!')
   showAddForm.value = false
   spotForm.value = {

@@ -58,7 +58,7 @@
         <div class="flex flex-wrap gap-4 mb-4">
           <div class="flex items-center bg-green-50 px-4 py-2 rounded-lg">
             <span class="font-semibold text-gray-700 mr-2">Budget:</span>
-            <span class="text-green-600 font-bold text-lg">{{ request.budget }}</span>
+            <span class="text-green-600 font-bold text-lg">{{ formatBudget(request.budget) }}</span>
           </div>
           <div v-if="request.category" class="flex items-center bg-blue-50 px-4 py-2 rounded-lg">
             <span class="font-semibold text-gray-700 mr-2">Category:</span>
@@ -139,6 +139,28 @@
             />
           </div>
 
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+              <input 
+                v-model="requestForm.email"
+                type="email"
+                required
+                placeholder="your.email@bc.edu"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+              <input 
+                v-model="requestForm.phone"
+                type="tel"
+                placeholder="(555) 123-4567"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+          </div>
+
           <div class="flex gap-4 pt-4">
             <button 
               @click="viewMode = 'browse'" 
@@ -184,6 +206,8 @@
 import { ref, onMounted } from 'vue'
 import { useBuyRequests } from '../../firebase/useBuyRequests'
 import ContactRequesterModal from '../common/ContactRequesterModal.vue'
+import { db } from '../../firebase/firebase'
+import { doc, getDoc } from 'firebase/firestore'
 
 const props = defineProps({
   user: { type: Object, default: null }
@@ -197,13 +221,16 @@ const viewMode = ref('browse')
 const showContactModal = ref(false)
 const showSuccessModal = ref(false)
 const selectedRequest = ref(null)
+const userProfile = ref(null)
 
 const requestForm = ref({
   title: '',
   description: '',
   budget: '',
   category: '',
-  location: ''
+  location: '',
+  email: '',
+  phone: ''
 })
 
 
@@ -255,6 +282,21 @@ const formatPostedDate = (timestamp) => {
   return `${Math.floor(seconds / 86400)}d ago`
 }
 
+const formatBudget = (budget) => {
+  if (!budget) return '$0'
+  
+  // Remove any existing $ and whitespace
+  const cleanBudget = budget.toString().replace(/[$\s]/g, '')
+  
+  // If it already starts with $, just return it
+  if (budget.startsWith('$')) {
+    return budget
+  }
+  
+  // Add $ prefix
+  return `$${cleanBudget}`
+}
+
 const submitRequest = async () => {
   try {
     console.log('Submitting buy request:', requestForm.value)
@@ -264,7 +306,9 @@ const submitRequest = async () => {
       description: requestForm.value.description,
       budget: requestForm.value.budget,
       category: requestForm.value.category || '',
-      location: requestForm.value.location || 'BC Campus'
+      location: requestForm.value.location || 'BC Campus',
+      email: requestForm.value.email,
+      phone: requestForm.value.phone
     })
     
     // Show success modal
@@ -273,13 +317,15 @@ const submitRequest = async () => {
     // Refresh the buy requests list
     await fetchBuyRequests()
     
-    // Reset form
+    // Reset form but keep user profile data
     requestForm.value = {
       title: '',
       description: '',
       budget: '',
       category: '',
-      location: ''
+      location: '',
+      email: props.user?.email || '',
+      phone: userProfile.value?.phoneNumber || ''
     }
     
     viewMode.value = 'browse'
@@ -289,8 +335,28 @@ const submitRequest = async () => {
   }
 }
 
+const loadUserProfile = async () => {
+  if (!props.user?.uid) return
+  
+  try {
+    const userRef = doc(db, 'users', props.user.uid)
+    const userSnap = await getDoc(userRef)
+    
+    if (userSnap.exists()) {
+      userProfile.value = userSnap.data()
+      
+      // Pre-fill form with user data
+      requestForm.value.email = props.user.email || ''
+      requestForm.value.phone = userProfile.value?.phoneNumber || ''
+    }
+  } catch (error) {
+    console.error('Error loading user profile:', error)
+  }
+}
+
 onMounted(() => {
   fetchBuyRequests()
+  loadUserProfile()
 })
 </script>
 

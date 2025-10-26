@@ -12,7 +12,7 @@
         {{ isLoginMode ? 'Welcome Back' : 'Create Account' }}
       </h2>
       <p class="text-gray-600 mb-6">
-        {{ isLoginMode ? 'Sign in to continue' : 'Join BC\'s Circular Economy' }}
+        {{ isLoginMode ? 'Sign in to continue' : '' }}
       </p>
 
       <div v-if="authError" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
@@ -91,6 +91,12 @@ const authError = ref('')
 
 const handleSubmit = async () => {
   authError.value = ''
+  
+  // Check if email ends with @bc.edu (only for sign up)
+  if (!isLoginMode.value && !email.value.endsWith('@bc.edu')) {
+    authError.value = 'Registration is only available for @bc.edu email addresses.'
+    return
+  }
   
   const result = isLoginMode.value 
     ? await signIn(email.value, password.value)
