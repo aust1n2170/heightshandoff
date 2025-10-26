@@ -1,10 +1,13 @@
 <template>
   <nav class="bg-primary text-white shadow-lg">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex justify-between items-center h-16">
-        <div class="flex items-center cursor-pointer" @click="$emit('navigate', 'feed')">
+      <div class="flex justify-between items-center h-20">
+        <div class="flex items-center cursor-pointer -ml-6" @click="$emit('navigate', 'feed')">
           <img src="/logo.png" alt="Logo" class="h-16 w-16 object-contain" />
-          <span class="text-2xl font-bold">Heights Handoff</span>
+          <div class="flex flex-col">
+            <span class="text-2xl font-bold">Heights Handoff</span>
+            <span class="text-xs text-secondary">One Eagle's Old, Another Eagle's Gold</span>
+          </div>
         </div>
 
         <div class="hidden md:flex items-center space-x-6">
@@ -149,6 +152,9 @@ const searchSuggestions = computed(() => {
 
 const handleSearchInput = () => {
   emit('search', searchQuery.value)
+  if (searchQuery.value.length > 0) {
+    showSuggestions.value = true
+  }
 }
 
 const selectSuggestion = (name) => {

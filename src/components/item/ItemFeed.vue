@@ -28,13 +28,13 @@
 
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div v-for="(item, index) in filteredItems" :key="item.id" 
-        class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 animate-fadeIn cursor-pointer"
+        class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2 animate-fadeIn cursor-pointer flex flex-col"
         :style="{ animationDelay: `${index * 0.1}s` }"
         @click="viewItemDetail(item)">
         <div @click.stop="enlargeImage(item.imageUrl)" class="cursor-pointer hover:opacity-90 transition">
           <img :src="item.imageUrl" :alt="item.name" class="w-full h-48 object-cover" />
         </div>
-        <div class="p-4">
+        <div class="p-4 flex flex-col flex-1">
           <h3 class="text-xl font-semibold mb-2 truncate">{{ item.name }}</h3>
           <div class="flex items-center justify-between mb-3">
             <span :class="getConditionColor(item.condition)" class="px-3 py-1 rounded-full text-xs font-medium">
@@ -43,13 +43,15 @@
             <span class="text-2xl font-bold text-green-600">{{ formatPrice(item.price) }}</span>
           </div>
           <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ item.description }}</p>
-          <div class="flex items-center justify-between text-xs text-gray-500">
-            <span>📍 {{ item.location || 'BC Campus' }}</span>
-            <span>{{ getTimeAgo(item.createdAt) }}</span>
+          <div class="mt-auto">
+            <div class="flex items-center justify-between text-xs text-gray-500 mb-3">
+              <span>📍 {{ item.location || 'BC Campus' }}</span>
+              <span>{{ getTimeAgo(item.createdAt) }}</span>
+            </div>
+            <button @click.stop="handleContact(item)" class="w-full bg-secondary text-white py-2 rounded-lg hover:bg-blue-700 transition-all duration-300 font-medium hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl">
+              Contact Seller
+            </button>
           </div>
-          <button @click.stop="handleContact(item)" class="w-full mt-4 bg-secondary text-white py-2 rounded-lg hover:bg-blue-700 transition-all duration-300 font-medium hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl">
-            Contact Seller
-          </button>
         </div>
       </div>
     </div>
