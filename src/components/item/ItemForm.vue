@@ -176,11 +176,11 @@
       </form>
     </div>
 
-    <div v-if="showSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" @click="showSuccessModal = false">
+    <div v-if="showSuccessModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4" @click="handleCloseSuccess">
       <div class="bg-white rounded-lg shadow-xl max-w-md w-full" @click.stop>
         <div class="p-6 border-b border-gray-200 flex items-center justify-between">
           <h3 class="text-xl font-bold text-gray-800">Success!</h3>
-          <button @click="showSuccessModal = false" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+          <button @click="handleCloseSuccess" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
         </div>
         
         <div class="p-6">
@@ -190,7 +190,7 @@
             <p class="text-gray-600">Your item is now live on the marketplace</p>
           </div>
 
-          <button @click="showSuccessModal = false" class="w-full bg-secondary text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium">
+          <button @click="handleCloseSuccess" class="w-full bg-secondary text-white py-3 rounded-lg hover:bg-blue-700 transition font-medium">
             Great!
           </button>
         </div>
@@ -357,12 +357,17 @@ const handleSubmit = async () => {
     // Re-load user profile data
     await loadUserProfile()
     
-    emit('itemPosted')
+    // Note: Don't emit 'itemPosted' here - wait for user to close the modal
     
   } catch (error) {
     console.error('Firebase error:', error)
     alert('Error posting item. Please try again.\n\n' + (error.message || 'Unknown error'))
   }
+}
+
+const handleCloseSuccess = () => {
+  showSuccessModal.value = false
+  emit('itemPosted')
 }
 
 onMounted(() => {
