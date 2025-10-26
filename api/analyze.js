@@ -41,7 +41,7 @@ export default async function handler(req, res) {
               1. Item name and category (furniture, electronics, clothing, books, kitchen, decor, other)
               2. Condition (like new/good/fair/poor)
               3. Brief description (1 sentence)
-              4. Suggested price ($X or FREE if low value)
+              4. Suggested price ($X or FREE if low value, give an exact value)
               
               Return ONLY valid JSON with keys: name, category, condition, description, price`
             },
