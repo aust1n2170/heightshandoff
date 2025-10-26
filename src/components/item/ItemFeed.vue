@@ -28,7 +28,9 @@
 
     <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div v-for="item in filteredItems" :key="item.id" class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition">
-        <img :src="item.imageUrl" :alt="item.name" class="w-full h-48 object-cover" />
+        <div @click="enlargeImage(item.imageUrl)" class="cursor-pointer hover:opacity-90 transition">
+          <img :src="item.imageUrl" :alt="item.name" class="w-full h-48 object-cover" />
+        </div>
         <div class="p-4">
           <h3 class="text-xl font-semibold mb-2 truncate">{{ item.name }}</h3>
           <div class="flex items-center justify-between mb-3">
@@ -46,6 +48,13 @@
             Contact Seller
           </button>
         </div>
+      </div>
+    </div>
+
+    <div v-if="showEnlargedImage" @click="closeEnlargedImage" class="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-50 p-4">
+      <div class="relative max-w-6xl max-h-full">
+        <button @click="closeEnlargedImage" class="absolute top-4 right-4 text-white hover:text-gray-300 text-4xl z-10 bg-black bg-opacity-50 rounded-full w-12 h-12 flex items-center justify-center transition">×</button>
+        <img :src="enlargedImage" alt="Enlarged view" class="max-w-full max-h-[90vh] object-contain" />
       </div>
     </div>
 
@@ -100,7 +109,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, onUnmounted, computed } from 'vue'
 import { useItems } from '../../firebase/useItems'
 
 const props = defineProps({
@@ -144,6 +153,8 @@ const categories = [
 const selectedCategory = ref('all')
 const showMessageCard = ref(false)
 const selectedItem = ref(null)
+const showEnlargedImage = ref(false)
+const enlargedImage = ref('')
 
 const handleCategoryChange = (category) => {
   selectedCategory.value = category
@@ -162,6 +173,16 @@ const handleContact = (item) => {
 const closeMessageCard = () => {
   showMessageCard.value = false
   selectedItem.value = null
+}
+
+const enlargeImage = (imageUrl) => {
+  enlargedImage.value = imageUrl
+  showEnlargedImage.value = true
+}
+
+const closeEnlargedImage = () => {
+  showEnlargedImage.value = false
+  enlargedImage.value = ''
 }
 
 const getConditionColor = (condition) => {
@@ -206,8 +227,19 @@ const getTimeAgo = (timestamp) => {
   return `${Math.floor(seconds / 86400)}d ago`
 }
 
+const handleKeyDown = (event) => {
+  if (event.key === 'Escape' && showEnlargedImage.value) {
+    closeEnlargedImage()
+  }
+}
+
 onMounted(() => {
   fetchItems()
+  window.addEventListener('keydown', handleKeyDown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeyDown)
 })
 
 defineExpose({

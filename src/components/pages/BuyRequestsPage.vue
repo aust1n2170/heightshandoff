@@ -20,15 +20,27 @@
       </div>
     </div>
 
-    <div v-if="viewMode === 'browse'" class="space-y-6">
-      <div v-for="request in buyRequests" :key="request.id" class="bg-white rounded-lg shadow-lg p-6">
+    <div v-if="viewMode === 'browse'">
+      <div v-if="loading" class="text-center py-12">
+        <div class="inline-block animate-spin text-4xl mb-4">⚡</div>
+        <p class="text-gray-500 text-lg">Loading buy requests...</p>
+      </div>
+
+      <div v-else-if="buyRequests.length === 0" class="text-center py-12">
+        <div class="text-6xl mb-4">📋</div>
+        <p class="text-gray-500 text-lg mb-2">No buy requests yet</p>
+        <p class="text-gray-400">Be the first to post a buy request!</p>
+      </div>
+
+      <div v-else class="space-y-6">
+        <div v-for="request in buyRequests" :key="request.id" class="bg-white rounded-lg shadow-lg p-6">
         <div class="flex items-start justify-between mb-4">
           <div>
             <h3 class="text-xl font-semibold text-gray-800 mb-2">{{ request.title }}</h3>
             <div class="flex items-center space-x-4 text-sm text-gray-600">
               <span class="flex items-center">
                 <span class="mr-1">⏰</span>
-                {{ request.postedDate }}
+                {{ formatPostedDate(request.postedDate) }}
               </span>
               <span class="flex items-center">
                 <span class="mr-1">📍</span>
@@ -57,6 +69,7 @@
         <button @click="handleReplyRequest(request)" class="w-full bg-secondary text-white py-2 rounded-lg hover:bg-blue-700 transition font-medium">
           Reply to Request
         </button>
+      </div>
       </div>
     </div>
 
@@ -194,13 +207,16 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useBuyRequests } from '../../firebase/useBuyRequests'
 
 const props = defineProps({
   user: { type: Object, default: null }
 })
 
 const emit = defineEmits(['showLogin'])
+
+const { buyRequests, loading, fetchBuyRequests, addBuyRequest } = useBuyRequests()
 
 const viewMode = ref('browse')
 const showContactModal = ref(false)
@@ -214,38 +230,7 @@ const requestForm = ref({
   location: ''
 })
 
-const buyRequests = ref([
-  {
-    id: 1,
-    title: 'Looking for a Desk',
-    description: 'Need a desk for my dorm room. Preferably wooden with drawers. Condition doesn\'t matter much.',
-    budget: '$50-100',
-    category: 'furniture',
-    location: 'BC Campus',
-    status: 'Open',
-    postedDate: '2 days ago'
-  },
-  {
-    id: 2,
-    title: 'ISO Chemistry Textbooks',
-    description: 'Looking for General Chemistry textbook by Brown. Any edition will work!',
-    budget: '$20-40',
-    category: 'textbooks',
-    location: 'BC Campus',
-    status: 'Open',
-    postedDate: '5 days ago'
-  },
-  {
-    id: 3,
-    title: 'Need a Mini Fridge',
-    description: 'Looking for a mini fridge for my dorm. Must be in working condition.',
-    budget: '$80-150',
-    category: 'electronics',
-    location: 'Stuart Hall',
-    status: 'Pending',
-    postedDate: '1 week ago'
-  }
-])
+
 
 const handleReplyRequest = (request) => {
   if (!props.user) {
@@ -272,34 +257,59 @@ const getStatusClass = (status) => {
   return classes[status] || 'bg-gray-100 text-gray-800'
 }
 
-const submitRequest = () => {
-  console.log('Submitting buy request:', requestForm.value)
-  // TODO: Add to Firestore
+const formatPostedDate = (timestamp) => {
+  if (!timestamp) return 'Just now'
   
-  alert('Buy request posted successfully!')
-  
-  // Add to the list
-  buyRequests.value.unshift({
-    id: Date.now(),
-    title: requestForm.value.title,
-    description: requestForm.value.description,
-    budget: requestForm.value.budget,
-    category: requestForm.value.category,
-    location: requestForm.value.location || 'BC Campus',
-    status: 'Open',
-    postedDate: 'Just now'
-  })
-  
-  // Reset form
-  requestForm.value = {
-    title: '',
-    description: '',
-    budget: '',
-    category: '',
-    location: ''
+  // If it's already a string (mock data), return it
+  if (typeof timestamp === 'string') {
+    return timestamp
   }
   
-  viewMode.value = 'browse'
+  // Convert Firestore timestamp to date
+  const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp)
+  const seconds = Math.floor((new Date() - date) / 1000)
+  
+  if (seconds < 60) return 'Just now'
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`
+  return `${Math.floor(seconds / 86400)}d ago`
 }
+
+const submitRequest = async () => {
+  try {
+    console.log('Submitting buy request:', requestForm.value)
+    
+    await addBuyRequest({
+      title: requestForm.value.title,
+      description: requestForm.value.description,
+      budget: requestForm.value.budget,
+      category: requestForm.value.category || '',
+      location: requestForm.value.location || 'BC Campus'
+    })
+    
+    alert('Buy request posted successfully!')
+    
+    // Refresh the buy requests list
+    await fetchBuyRequests()
+    
+    // Reset form
+    requestForm.value = {
+      title: '',
+      description: '',
+      budget: '',
+      category: '',
+      location: ''
+    }
+    
+    viewMode.value = 'browse'
+  } catch (error) {
+    console.error('Error submitting buy request:', error)
+    alert('Failed to post buy request. Please try again.')
+  }
+}
+
+onMounted(() => {
+  fetchBuyRequests()
+})
 </script>
 
