@@ -3,12 +3,14 @@
     <Navbar 
       :currentView="currentView"
       @navigate="currentView = $event"
+      @search="handleSearch"
     />
 
     <main class="py-8">
       <ItemFeed 
         v-if="currentView === 'feed'" 
         ref="itemFeedRef"
+        :searchQuery="searchQuery"
       />
       <ItemForm 
         v-else-if="currentView === 'post'"
@@ -22,7 +24,7 @@
         <div class="text-2xl mb-2">Thrift Loop</div>
         <p class="text-gray-400 mb-4">Building BC's Circular Economy</p>
         <p class="text-gray-500 text-xs mt-6">
-          Built by Austin Ngo, Eddie Yang, Eshaan Chatrath, Kai Shim
+          Built by Austin Ngo, Eddie Yang, Eshaan Chatrath, Kai Shim, test
         </p>
       </div>
     </footer>
@@ -37,6 +39,11 @@ import Navbar from './components/Navbar.vue'
 
 const currentView = ref('feed')
 const itemFeedRef = ref(null)
+const searchQuery = ref('')
+
+const handleSearch = (query) => {
+  searchQuery.value = query
+}
 
 const handleItemPosted = () => {
   currentView.value = 'feed'

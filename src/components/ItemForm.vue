@@ -6,7 +6,7 @@
       <form @submit.prevent="handleSubmit">
         <div class="mb-6">
           <label class="block text-sm font-medium text-gray-700 mb-2">
-            📸 Upload Photo *
+            Upload Photo *
           </label>
           <input 
             type="file" 
@@ -37,7 +37,7 @@
         </div>
 
         <div v-if="analyzeError" class="mb-6 p-4 bg-red-50 rounded-lg border-2 border-red-200">
-          <p class="text-red-700 font-bold">⚠️ AI Analysis Failed</p>
+          <p class="text-red-700 font-bold">AI Analysis Failed</p>
           <p class="text-red-600 text-sm">{{ analyzeError }}</p>
           <p class="text-red-600 text-sm mt-2">Please fill out the form manually.</p>
         </div>
@@ -90,7 +90,7 @@
             <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
             <textarea 
               v-model="form.description" 
-              placeholder="Brief description of the item..." 
+              placeholder="Brief description of the item" 
               rows="3" 
               class="w-full p-3 border-2 border-gray-300 rounded-lg focus:border-green-600 focus:outline-none"
             />
@@ -122,11 +122,11 @@
         <button 
           type="submit" 
           :disabled="posting || analyzing" 
-          class="w-full mt-6 bg-green-600 text-white py-4 rounded-lg font-semibold text-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all shadow-lg"
+          class="w-full mt-6 bg-secondary text-white py-4 rounded-lg font-semibold text-lg hover:bg-green-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all shadow-lg"
         >
-          <span v-if="posting">Posting to Firebase... ⏳</span>
-          <span v-else-if="analyzing">Analyzing... 🤖</span>
-          <span v-else>List Item 🚀</span>
+          <span v-if="posting">Posting...</span>
+          <span v-else-if="analyzing">Analyzing...</span>
+          <span v-else>List Item</span>
         </button>
       </form>
     </div>
@@ -180,7 +180,7 @@ const handleImageUpload = async (event) => {
   analyzeError.value = null
   analyzing.value = true
 
-  console.log('🔍 Starting AI analysis...')
+  console.log('Starting AI analysis...')
 
   try {
     const { base64, mimeType } = await fileToBase64(file)

@@ -11,7 +11,7 @@ import {
 } from 'firebase/firestore'
 import { 
   ref as storageRef, 
-  uploadBytes, 
+  uploadBytes,
   getDownloadURL 
 } from 'firebase/storage'
 
