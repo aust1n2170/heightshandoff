@@ -19,7 +19,7 @@
             <span class="text-2xl mr-3">📧</span>
             <div>
               <p class="font-medium text-gray-800">Email</p>
-              <p class="text-sm text-gray-600">ngoau@bc.edu</p>
+              <p class="text-sm text-gray-600">{{ item.email || 'Not provided' }}</p>
             </div>
           </div>
           
@@ -27,7 +27,7 @@
             <span class="text-2xl mr-3">📱</span>
             <div>
               <p class="font-medium text-gray-800">Phone</p>
-              <p class="text-sm text-gray-600">7816600372</p>
+              <p class="text-sm text-gray-600">{{ item.phone || 'Not provided' }}</p>
             </div>
           </div>
 
@@ -35,7 +35,7 @@
             <span class="text-2xl mr-3">📍</span>
             <div>
               <p class="font-medium text-gray-800">Location</p>
-              <p class="text-sm text-gray-600">Duchesne East</p>
+              <p class="text-sm text-gray-600">{{ item.location || 'Not provided' }}</p>
             </div>
           </div>
         </div>
